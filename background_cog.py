@@ -33,7 +33,7 @@ class Background(commands.Cog):
     async def join_audio(self, ctx):
         try:
             channel = ctx.author.voice.channel
-            discord.FF
+        
             audio_source = discord.FFmpegPCMAudio(self.voiceLinks[random.randint(0, len(self.voiceLinks)-1)])
             if channel:
                 if not self.inVoiceChannel:
