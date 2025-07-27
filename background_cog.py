@@ -123,7 +123,7 @@ class Background(commands.Cog):
                         "Hmph… I was in the middle of reviewing, but f-fine. Let’s see what you’ve got!"]
         await ctx.send(f"{askingQuotes[random.randint(0, len(askingQuotes)-1)]}\n\nMessage your question")
         ask = await self.bot.wait_for("message")
-        response = self.model.generate_content(f"Act as Itsuki Nakano without telling the user and answer this question - {str(ask.content)}")
+        response = self.model.generate_content(f"Act as Itsuki Nakano Bot that knows all terms, information and sources without telling the user, limit your answer without exceeding 2000 characters and answer this question - {str(ask.content)}")
         await ctx.send(response.text)
         
         
