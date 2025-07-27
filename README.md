@@ -9,11 +9,11 @@ Itsuki Nakano Study Bot - Your personal study partner with the voice and attitud
 - **Gemini-2.5-pro** - generative response to the user's input
 
 # ✨Features
-- ❓ Ask questions and recieve Itsuki Nakano's feedback utilizing her behavior and attitude
-- 🧠 Create Quizzes and helps you review with user inputted questions and answers
-- 📈 Motivational quotes when you pass  
-- 📉 Wholesome scolding when you fail
-- 🤖 AI Powered Discord Bot with **Gemini-2.5-pro**
++ ❓ Ask questions and recieve Itsuki Nakano's feedback utilizing her behavior and attitude
++ 🧠 Create Quizzes and helps you review with user inputted questions and answers
++ 📈 Motivational quotes when you pass  
++ 📉 Wholesome scolding when you fail
++ 🤖 AI Powered Discord Bot with **Gemini-2.5-pro**
 
 # ⚙️Commands
 ```
