@@ -24,6 +24,7 @@ class HelpCog(commands.Cog):
         &leave - the bot will disconnect to the voice channel
         &quiz <# of questions> - the bot will input the questions with answers
         &clear - Clears the list of questions
+        &restart - Restart the quiz
         &ask - asks questions to a bot
         ```
         """
