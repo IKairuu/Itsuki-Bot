@@ -22,6 +22,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 &leave - the bot will disconnect to the voice channel
 &quiz <# of questions> - the bot will input the questions with answers
 &clear - Clears the list of questions
+&restart - Restart the quiz
 &ask - asks questions to a bot
 ```
 ---
@@ -42,6 +43,9 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 ### 🔗 Discord Bot Link [HERE](https://discord.com/oauth2/authorize?client_id=1397108461036113941&permissions=8&integration_type=0&scope=bot)
 > [!NOTE]
 > The Bot does not run 24/7 due to bot hosting issues
+
+### 🆕 UPDATES
+- New Command: &restart
 
 ## 📬 Contact Information
 - 📧 Email: [abandiakyle2112@gmail.com](mailto:abandiakyle2112@gmail.com)  
