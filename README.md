@@ -1,5 +1,5 @@
 # 📚Itsuki-Bot
-Itsuki Nakano Study Bot - Your personal study partner with the voice and attitude of Itsuki Nakano from The Quintessential Quintuplets! She’s flustered, stubborn, and surprisingly reliable. Whether you're reviewing, taking a quiz, or asking for help, she’s always ready with a tsundere comment to keep you motivated.
+Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and attitude of Itsuki Nakano from The Quintessential Quintuplets! She’s flustered, stubborn, and surprisingly reliable. Whether you're reviewing, taking a quiz, or asking for help, she’s always ready with a tsundere comment to keep you motivated.
 
 ---
 # 🛠️Built With
@@ -40,6 +40,8 @@ Itsuki Nakano Study Bot - Your personal study partner with the voice and attitud
 ---
 
 ### 🔗 Discord Bot Link [HERE](https://discord.com/oauth2/authorize?client_id=1397108461036113941&permissions=8&integration_type=0&scope=bot)
+> [!NOTE]
+> The Bot does not run 24/7 due to bot hosting issues
 
 ## 📬 Contact Information
 - 📧 Email: [abandiakyle2112@gmail.com](mailto:abandiakyle2112@gmail.com)  
