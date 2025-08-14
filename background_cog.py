@@ -132,8 +132,13 @@ class Background(commands.Cog):
                         "Hmph… I was in the middle of reviewing, but f-fine. Let’s see what you’ve got!"]
         await ctx.send(f"{askingQuotes[random.randint(0, len(askingQuotes)-1)]}\n\nMessage your question")
         ask = await self.bot.wait_for("message")
-        response = self.model.generate_content(os.getenv('AICOMMAND') + str(ask.content))
-        await ctx.send(response.text)
+        try:
+            response = self.model.generate_content(os.getenv('AICOMMAND') + str(ask.content))
+            await ctx.send(response.text)
+
+        except Exception as error:
+            await ctx.send("W-Wha?! This is way too much for me! I’m not a genius, you know… Can we slow down before my brain explodes?!😖🍞")
+
 
 
 
