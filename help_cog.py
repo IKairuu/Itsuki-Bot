@@ -26,6 +26,7 @@ class HelpCog(commands.Cog):
         &clear - Clears the list of questions
         &restart - Restart the quiz
         &ask - asks questions to a bot
+        &speak - text-to-voice bot speech
         ```
         """
         await ctx.send(help_message)
