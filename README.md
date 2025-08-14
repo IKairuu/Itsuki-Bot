@@ -7,6 +7,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 - **Discord.py** - Discord Interactions
 - **Replit** - Cloud Hosting
 - **Gemini-2.5-pro** - generative response to the user's input
+- **Elevenlabs** - text-to-speech audio with Itsuki Bot
 
 # ✨Features
 + ❓ Ask questions and recieve Itsuki Nakano's feedback utilizing her behavior and attitude
@@ -14,6 +15,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 + 📈 Motivational quotes when you pass  
 + 📉 Wholesome scolding when you fail
 + 🤖 AI Powered Discord Bot with **Gemini-2.5-pro**
++ 🗣️ Text-To-Speech Audio
 
 # ⚙️Commands
 ```
@@ -24,6 +26,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 &clear - Clears the list of questions
 &restart - Restart the quiz
 &ask - asks questions to a bot
+&speak - text-to-voice bot speech
 ```
 ---
 # SAMPLE COMMANDS
@@ -42,10 +45,13 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 
 ### 🔗 Discord Bot Link [HERE](https://discord.com/oauth2/authorize?client_id=1397108461036113941&permissions=8&integration_type=0&scope=bot)
 > [!NOTE]
-> The Bot does not run 24/7 due to bot hosting issues
+> The Bot does not run 24/7 due to bot hosting issues.
+
+> [!IMPORTANT]
+> The speak command has limited credits to generate an AI voice.
 
 ### 🆕 UPDATES
-- New Command: &restart
+- New Command: &speak, a new feature text-to-speech command with AI generated voice of Itsuki(Close to Itsuki's voice)
 
 ## 📬 Contact Information
 - 📧 Email: [abandiakyle2112@gmail.com](mailto:abandiakyle2112@gmail.com)  
