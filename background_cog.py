@@ -3,6 +3,9 @@ from discord.ext import commands
 import random
 import os
 import google.generativeai as genai
+from elevenlabs.client import ElevenLabs
+import requests
+import tempfile
 
 class Background(commands.Cog):
     def __init__(self, bot):
@@ -17,6 +20,8 @@ class Background(commands.Cog):
         genai.configure(api_key=gemini_api_key)
         self.model = genai.GenerativeModel("gemini-2.5-pro")
 
+        self.elevenLabs = ElevenLabs(api_key=os.getenv("VOICEAPI"))
+
         with open("links.txt", "r", encoding="utf-8") as links:
             contents = links.readlines()
             for voiceLink in contents:
@@ -26,7 +31,7 @@ class Background(commands.Cog):
             contents = responses.readlines()
             for res in contents:
                 self.invalidInputResponse.append(res.replace("\n",""))
-    
+
     async def answer_quiz(self, ctx):
         incorrectAnswers =  0
         readyQuotes = ["S-So… are you really ready for this? I-I mean, don’t blame me if you didn’t study properly!",
@@ -48,7 +53,7 @@ class Background(commands.Cog):
         question_list = list(questionsDict.items())
         random.shuffle(question_list)
         new_question_list = dict(question_list)
-        
+
         passing = len(new_question_list) * 0.75
         for nums, questions in enumerate(new_question_list):
             wrong_answer = True
@@ -78,8 +83,51 @@ class Background(commands.Cog):
                     ctx.voice_client.play(audio_source)
                 except Exception as error:
                     await ctx.send(f"Error playing the audio: {error}")
+            else:
+                await ctx.send(f"You need to be in a voice channel to use this command.")
         except Exception as error:
-            await ctx.send(f"You need to be in a voice channel to use this command.")
+            await ctx.send(str(error))
+
+    def speech_generate(self, text:str, id:str):
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{id}/stream"
+        header = {"xi-api-key" : os.getenv("VOICEAPI"), "Content-Type": "application/json"}
+        data = {"text": text, "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}            
+
+        voice_request = requests.post(url, headers=header, json=data, stream=True)
+
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        temp.write(voice_request.content)
+        temp.close()
+        return temp.name
+
+    @commands.command(name="speak", help="Text-to-speech")
+    async def speak_bot(self, ctx):
+        speak_quotes = ["M-Mou… fine, I’ll talk. But only this once!",
+                       "Okay, but if you laugh, I’m not saying another word!",
+                       "You’re lucky I’m in a good mood today… okay, let’s do this.",
+                       "Okay, okay, I’ll say it… sheesh, you’re so demanding.",
+                       "If you wanted to hear my voice that badly… here it is!"]
+        try:
+            voiceId = "36saPB3WI5Qp88QPcb0F"
+            channel = ctx.author.voice.channel
+            await ctx.send(speak_quotes[random.randint(0,len(speak_quotes)-1)] + "\n\nType the message you want me to speak")
+            bot_speak = await self.bot.wait_for("message")
+
+            mp3_path = self.speech_generate(bot_speak.content, voiceId)
+            audio_source = discord.FFmpegOpusAudio(mp3_path)
+            if channel:
+                if not self.inVoiceChannel:
+                    await channel.connect()
+                    self.inVoiceChannel = True
+                try:
+                    ctx.voice_client.play(audio_source)
+                except Exception as error:
+                    await ctx.send(f"Error playing the audio: {error}")
+            else:
+                await ctx.send(f"You need to be in a voice channel to use this command." + str(error))
+        except Exception as error:
+            await ctx.send(f"Error Loading the voice")
+
 
     @commands.command(name="leave", help="join in voice channel")
     async def disconnect_audio(self, ctx):
@@ -90,7 +138,7 @@ class Background(commands.Cog):
     async def create_quiz(self, ctx, lines):
         try:
             numQuestion = int(lines)
-            
+
             if numQuestion > 15:
                 await ctx.send("I can only accept 15 questions")
             else:
@@ -102,19 +150,19 @@ class Background(commands.Cog):
                     self.questions.append(str(ask.content))
                     self.answers.append(str(answer.content))
                     await ctx.send(f"```{str(nums) +'.'+(str(ask.content))}```")
-            
+
             await self.answer_quiz(ctx)
-                 
+
         except Exception as error:
             await ctx.send(self.invalidInputResponse[random.randint(0, len(self.invalidInputResponse)-1)] + f"Error: {error}")
-    
+
     @commands.command(name="restart", help="Restart the quiz")
     async def restart_quiz(self, ctx):
         if len(self.questions) <= 0:
             await ctx.send("There are no inputted Questions")
         else:
             await self.answer_quiz(ctx)
-        
+
     @commands.command(name="clear", help="Clears the questions")
     async def clear_questions(self, ctx):
         if len(self.questions) == 0 or len(self.answers) == 0:
@@ -132,13 +180,8 @@ class Background(commands.Cog):
                         "Hmph… I was in the middle of reviewing, but f-fine. Let’s see what you’ve got!"]
         await ctx.send(f"{askingQuotes[random.randint(0, len(askingQuotes)-1)]}\n\nMessage your question")
         ask = await self.bot.wait_for("message")
-        try:
-            response = self.model.generate_content(os.getenv('AICOMMAND') + str(ask.content))
-            await ctx.send(response.text)
-
-        except Exception as error:
-            await ctx.send("W-Wha?! This is way too much for me! I’m not a genius, you know… Can we slow down before my brain explodes?!😖🍞")
-
+        response = self.model.generate_content(os.getenv('AICOMMAND') + str(ask.content))
+        await ctx.send(response.text)
 
 
 
