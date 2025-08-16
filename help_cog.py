@@ -27,6 +27,8 @@ class HelpCog(commands.Cog):
         &restart - Restart the quiz
         &ask - asks questions to a bot
         &speak - text-to-voice bot speech
+        &about - Developer Information
         ```
         """
         await ctx.send(help_message)
+
