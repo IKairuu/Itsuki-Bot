@@ -182,6 +182,22 @@ class Background(commands.Cog):
         ask = await self.bot.wait_for("message")
         response = self.model.generate_content(os.getenv('AICOMMAND') + str(ask.content))
         await ctx.send(response.text)
+    
+    @commands.command(name="about", help="Display Developer Information")
+    async def display_dev(self, ctx):
+        dev_quotes = ["O-Oh! U-Um… this is Kairu, my developer! D-Don’t get the wrong idea, they’re not perfect, but… they worked really hard to make me, s-so you better appreciate them!",
+                      "Tch… I guess I should introduce the one behind all this. This is Kairu, they’re the reason I’m even talking to you right now. Don’t praise them too much, though!",
+                      "If you’re wondering who made me this way… it’s Kairu! Hmph, don’t get the wrong idea, I’m not bragging about them or anything…", 
+                      "You should know Kairu’s the one who worked hard to make me your study partner. I-I’m just doing my part, okay?",
+                      "Don’t underestimate me just because I’m flustered sometimes! With Kairu’s help, I can handle anything you throw at me!"]
+
+        repo_quotes = ["You’ve entered my place. Hmph, don’t touch anything without asking me first!",
+                       "Listen carefully! This is Itsuki’s repository, so treat it with respect… o-or else!",
+                       "This repository belongs to Itsuki Nakano! Remember that before snooping around!",
+                       "Don’t get the wrong idea! This is my place, and I’m just letting you use it… got that?",
+                       "Heh… you’ve stepped into Itsuki Nakano’s repository! So behave yourself properly!"]
+        
+        await ctx.send(dev_quotes[random.randint(0, len(dev_quotes)-1)] + "\nhttps://github.com/IKairuu\n\n" + repo_quotes[random.randint(0, len(repo_quotes)-1)] + "\nhttps://github.com/IKairuu/Itsuki-Bot")
 
 
 
