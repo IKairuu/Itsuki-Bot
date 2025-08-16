@@ -35,7 +35,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 ![alt text](https://github.com/IKairuu/Itsuki-Bot/blob/1ecb4a7e996f5f50c4e84f9100cb53395e145208/resources/Sample66.png)
 
 ## 🤝 Help Command
-![alt text](https://github.com/IKairuu/Itsuki-Bot/blob/1ecb4a7e996f5f50c4e84f9100cb53395e145208/resources/sample22.png)
+![alt text](https://github.com/IKairuu/Itsuki-Bot/blob/8662c9f71fb1023cddfe4354ed9b7aacf02072c8/resources/Sample66.png)
 
 ## 📝 Create Quizzes
 ![alt text](https://github.com/IKairuu/Itsuki-Bot/blob/1ecb4a7e996f5f50c4e84f9100cb53395e145208/resources/sample33.png)
