@@ -27,11 +27,12 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 &restart - Restart the quiz
 &ask - asks questions to a bot
 &speak - text-to-voice bot speech
+&about - Display Developer Information
 ```
 ---
 # SAMPLE COMMANDS
 ## ❓ Ask Questions to Itsuki
-![alt text](https://github.com/IKairuu/Itsuki-Bot/blob/1ecb4a7e996f5f50c4e84f9100cb53395e145208/resources/sample11.png)
+![alt text](https://github.com/IKairuu/Itsuki-Bot/blob/1ecb4a7e996f5f50c4e84f9100cb53395e145208/resources/sample66.png)
 
 ## 🤝 Help Command
 ![alt text](https://github.com/IKairuu/Itsuki-Bot/blob/1ecb4a7e996f5f50c4e84f9100cb53395e145208/resources/sample22.png)
