@@ -4,18 +4,19 @@ import random
 import os
 import google.generativeai as genai
 from elevenlabs.client import ElevenLabs
-import requests
-import tempfile
+import requests, tempfile, json
 
 class Background(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, guilds):
+        super().__init__()
         self.bot = bot
         self.inVoiceChannel = False
         self.invalidInputResponse = []
         self.voiceLinks = []
         self.questions = []
         self.answers = []
-
+        self.guilds = {}
+        
         gemini_api_key = os.getenv("API")
         genai.configure(api_key=gemini_api_key)
         self.model = genai.GenerativeModel("gemini-2.5-pro")
@@ -31,7 +32,14 @@ class Background(commands.Cog):
             contents = responses.readlines()
             for res in contents:
                 self.invalidInputResponse.append(res.replace("\n",""))
-
+        
+        with open("prompts.json", "r") as json_file:
+            self.data = json.load(json_file)
+    
+    async def add_guild(self, ctx):
+        if ctx.guild.id not in self.guilds:
+            self.guilds[ctx.guild.id] = False
+        
     async def answer_quiz(self, ctx):
         incorrectAnswers =  0
         readyQuotes = ["S-So… are you really ready for this? I-I mean, don’t blame me if you didn’t study properly!",
@@ -65,20 +73,21 @@ class Background(commands.Cog):
                 else:
                     incorrectAnswers += 1
                     await ctx.send(incorrectAnswerQuotes[random.randint(0, len(incorrectAnswerQuotes)-1)])
-        if incorrectAnswers > passing:
+        if incorrectAnswers > passing: 
             await ctx.send(f"Incorrect Answers: {incorrectAnswers}\nTotal Items: {str(len(self.questions))}\n\n" + failedQuotes[random.randint(0, len(failedQuotes)-1)])
         else:
             await ctx.send(f"Incorrect Answers: {incorrectAnswers}\n\n" + passedQuotes[random.randint(0, len(passedQuotes)-1)])
 
     @commands.command(name="talk", help="join in voice channel")
     async def join_audio(self, ctx):
+        await self.add_guild(ctx)
         try:
             channel = ctx.author.voice.channel
             audio_source = discord.FFmpegOpusAudio(self.voiceLinks[random.randint(0, len(self.voiceLinks)-1)])
             if channel:
-                if not self.inVoiceChannel:
+                if not self.guilds[ctx.guild.id]:
                     await channel.connect()
-                    self.inVoiceChannel = True
+                    self.guilds[ctx.guild.id] = True
                 try:
                     ctx.voice_client.play(audio_source)
                 except Exception as error:
@@ -88,10 +97,14 @@ class Background(commands.Cog):
         except Exception as error:
             await ctx.send(str(error))
 
-    def speech_generate(self, text:str, id:str):
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{id}/stream"
-        header = {"xi-api-key" : os.getenv("VOICEAPI"), "Content-Type": "application/json"}
-        data = {"text": text, "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}            
+    async def speech_generate(self, text:str, id:str, ctx):
+        try:
+            response = self.model.generate_content(self.data["JDUB"] + text)
+            url = f"https://api.elevenlabs.io/v1/text-to-speech/{id}/stream"
+            header = {"xi-api-key" : os.getenv("VOICEAPI"), "Content-Type": "application/json"}
+            data = {"text": response.text, "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}   
+        except ValueError or Exception as error:
+            await ctx.send("Im tired, let me rest for now, talk to me later")
 
         voice_request = requests.post(url, headers=header, json=data, stream=True)
 
@@ -102,6 +115,7 @@ class Background(commands.Cog):
 
     @commands.command(name="speak", help="Text-to-speech")
     async def speak_bot(self, ctx):
+        await self.add_guild(ctx)
         speak_quotes = ["M-Mou… fine, I’ll talk. But only this once!",
                        "Okay, but if you laugh, I’m not saying another word!",
                        "You’re lucky I’m in a good mood today… okay, let’s do this.",
@@ -113,12 +127,12 @@ class Background(commands.Cog):
             await ctx.send(speak_quotes[random.randint(0,len(speak_quotes)-1)] + "\n\nType the message you want me to speak")
             bot_speak = await self.bot.wait_for("message")
 
-            mp3_path = self.speech_generate(bot_speak.content, voiceId)
+            mp3_path = await self.speech_generate(bot_speak.content, voiceId, ctx)
             audio_source = discord.FFmpegOpusAudio(mp3_path)
             if channel:
-                if not self.inVoiceChannel:
+                if not self.guilds[ctx.guild.id]:
                     await channel.connect()
-                    self.inVoiceChannel = True
+                    self.guilds[ctx.guild.id] = True
                 try:
                     ctx.voice_client.play(audio_source)
                 except Exception as error:
@@ -126,16 +140,18 @@ class Background(commands.Cog):
             else:
                 await ctx.send(f"You need to be in a voice channel to use this command." + str(error))
         except Exception as error:
-            await ctx.send(f"Error Loading the voice")
+            await ctx.send(f"Error Loading the voice: {error}")
 
 
     @commands.command(name="leave", help="join in voice channel")
     async def disconnect_audio(self, ctx):
-        self.inVoiceChannel = False
+        await self.add_guild(ctx)
+        self.guilds[ctx.guild.id] = False
         await ctx.voice_client.disconnect()
 
     @commands.command(name="quiz", help="the bot will input the questions with answers")
     async def create_quiz(self, ctx, lines):
+        await self.add_guild(ctx)
         try:
             numQuestion = int(lines)
 
@@ -158,6 +174,7 @@ class Background(commands.Cog):
 
     @commands.command(name="restart", help="Restart the quiz")
     async def restart_quiz(self, ctx):
+        await self.add_guild(ctx)
         if len(self.questions) <= 0:
             await ctx.send("There are no inputted Questions")
         else:
@@ -165,6 +182,7 @@ class Background(commands.Cog):
 
     @commands.command(name="clear", help="Clears the questions")
     async def clear_questions(self, ctx):
+        await self.add_guild(ctx)
         if len(self.questions) == 0 or len(self.answers) == 0:
             await ctx.send("There are no inputted questions")
         else:
@@ -174,17 +192,22 @@ class Background(commands.Cog):
 
     @commands.command(name="ask", help="Asks a question to a bot")
     async def ask_bot(self, ctx):
+        await self.add_guild(ctx)
         askingQuotes = ["E-Eh? You’re asking me? W-Well… I’ll try my best! Just don’t expect me to know everything, okay?!", 
                         "I-I guess I am the reliable one… F-Fine, ask your question. Let’s figure it out together!",
                         "W-What is it this time? If it’s another weird question, I swear I’ll—… Ugh, fine. Go on.",
                         "Hmph… I was in the middle of reviewing, but f-fine. Let’s see what you’ve got!"]
         await ctx.send(f"{askingQuotes[random.randint(0, len(askingQuotes)-1)]}\n\nMessage your question")
         ask = await self.bot.wait_for("message")
-        response = self.model.generate_content(os.getenv('AICOMMAND') + str(ask.content))
-        await ctx.send(response.text)
+        try:
+            response = self.model.generate_content(self.data["AICOMMAND"] + str(ask.content))
+            await ctx.send(response.text)
+        except ValueError or Exception as error:
+            await ctx.send("Im tired, let me rest for now, talk to me later")
     
     @commands.command(name="about", help="Display Developer Information")
     async def display_dev(self, ctx):
+        await self.add_guild(ctx)
         dev_quotes = ["O-Oh! U-Um… this is Kairu, my developer! D-Don’t get the wrong idea, they’re not perfect, but… they worked really hard to make me, s-so you better appreciate them!",
                       "Tch… I guess I should introduce the one behind all this. This is Kairu, they’re the reason I’m even talking to you right now. Don’t praise them too much, though!",
                       "If you’re wondering who made me this way… it’s Kairu! Hmph, don’t get the wrong idea, I’m not bragging about them or anything…", 
@@ -198,8 +221,3 @@ class Background(commands.Cog):
                        "Heh… you’ve stepped into Itsuki Nakano’s repository! So behave yourself properly!"]
         
         await ctx.send(dev_quotes[random.randint(0, len(dev_quotes)-1)] + "\nhttps://github.com/IKairuu\n\n" + repo_quotes[random.randint(0, len(repo_quotes)-1)] + "\nhttps://github.com/IKairuu/Itsuki-Bot")
-
-
-
-
-
