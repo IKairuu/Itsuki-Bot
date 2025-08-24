@@ -7,7 +7,7 @@ from elevenlabs.client import ElevenLabs
 import requests, tempfile, json
 
 class Background(commands.Cog):
-    def __init__(self, bot, guilds):
+    def __init__(self, bot):
         super().__init__()
         self.bot = bot
         self.inVoiceChannel = False
@@ -33,8 +33,11 @@ class Background(commands.Cog):
             for res in contents:
                 self.invalidInputResponse.append(res.replace("\n",""))
         
-        with open("prompts.json", "r") as json_file:
+        with open("prompts.json", "r", encoding="utf-8") as json_file:
             self.data = json.load(json_file)
+            
+        with open("quotes.json", "r", encoding="utf-8") as json_file:
+            self.quotes = json.load(json_file)
     
     async def add_guild(self, ctx):
         if ctx.guild.id not in self.guilds:
@@ -42,21 +45,9 @@ class Background(commands.Cog):
         
     async def answer_quiz(self, ctx):
         incorrectAnswers =  0
-        readyQuotes = ["S-So… are you really ready for this? I-I mean, don’t blame me if you didn’t study properly!",
-                           "T-The test is starting any minute now… D-Don’t just sit there! Are you ready or not?!",
-                           "Y-You’ve worked hard, I know that… b-but are you truly prepared? I’ll be cheering for you either way!"]
-        incorrectAnswerQuotes = ["W-What?! That’s not the answer! Ugh… you weren’t listening again, were you?!",
-                                "I-It’s wrong… b-but it’s okay! We’ll just review it together until you get it!",
-                                "H-Honestly… you need to focus more! B-But I’ll help you fix it, so don’t give up!"]
-        passedQuotes = ["Y-You passed?! I knew you had it in you! …N-Not that I was worried or anything!",
-                        "Amazing…! I-I mean, that was expected since I helped you review, right?",
-                        "T-Totally crushed it! J-Just don’t slack off now, okay?! You have to keep it up!"]
-        failedQuotes = ["Geez… How did you mess that up? A-Are you trying to stress me out?! …Hmph. Fine, we’ll try again.",
-                        "I-I’m disappointed… B-But only because I know you can do better! N-Now let’s go again!",
-                        "T-This is not the end! I won’t let you give up just because of one lousy score!"]
         questionsDict = {self.questions[x]:self.answers[x] for x, y in enumerate(self.questions)}
         string = "\n".join(self.questions)
-        await ctx.send(f"```QUESTIONS:\n{string}```\n{readyQuotes[random.randint(0, len(readyQuotes)-1)]}")
+        await ctx.send(f"```QUESTIONS:\n{string}```\n{self.quotes["ready_quotes"][random.randint(0, len(self.quotes["ready_quotes"])-1)]}")
 
         question_list = list(questionsDict.items())
         random.shuffle(question_list)
@@ -72,11 +63,11 @@ class Background(commands.Cog):
                     wrong_answer = False
                 else:
                     incorrectAnswers += 1
-                    await ctx.send(incorrectAnswerQuotes[random.randint(0, len(incorrectAnswerQuotes)-1)])
+                    await ctx.send(self.quotes["incorrect_answer_quotes"][random.randint(0, len(self.quotes["incorrect_answer_quotes"])-1)])
         if incorrectAnswers > passing: 
-            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\nTotal Items: {str(len(self.questions))}\n\n" + failedQuotes[random.randint(0, len(failedQuotes)-1)])
+            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\nTotal Items: {str(len(self.questions))}\n\n" + self.quotes["failed_quotes"][random.randint(0, len(self.quotes["failed_quotes"])-1)])
         else:
-            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\n\n" + passedQuotes[random.randint(0, len(passedQuotes)-1)])
+            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\n\n" + self.quotes["passed_quotes"][random.randint(0, len(self.quotes["passed_quotes"])-1)])
 
     @commands.command(name="talk", help="join in voice channel")
     async def join_audio(self, ctx):
@@ -116,15 +107,10 @@ class Background(commands.Cog):
     @commands.command(name="speak", help="Text-to-speech")
     async def speak_bot(self, ctx):
         await self.add_guild(ctx)
-        speak_quotes = ["M-Mou… fine, I’ll talk. But only this once!",
-                       "Okay, but if you laugh, I’m not saying another word!",
-                       "You’re lucky I’m in a good mood today… okay, let’s do this.",
-                       "Okay, okay, I’ll say it… sheesh, you’re so demanding.",
-                       "If you wanted to hear my voice that badly… here it is!"]
         try:
             voiceId = "36saPB3WI5Qp88QPcb0F"
             channel = ctx.author.voice.channel
-            await ctx.send(speak_quotes[random.randint(0,len(speak_quotes)-1)] + "\n\nType the message you want me to speak")
+            await ctx.send(self.quotes["speak_quotes"][random.randint(0, len(self.quotes["speak_quotes"])-1)] + "\n\nType the message you want me to speak")
             bot_speak = await self.bot.wait_for("message")
 
             mp3_path = await self.speech_generate(bot_speak.content, voiceId, ctx)
@@ -170,7 +156,7 @@ class Background(commands.Cog):
             await self.answer_quiz(ctx)
 
         except Exception as error:
-            await ctx.send(self.invalidInputResponse[random.randint(0, len(self.invalidInputResponse)-1)] + f"Error: {error}")
+            await ctx.send(self.quotes["invalid_quotes"][random.randint(0, len(self.quotes["invalid_quotes"])-1)] + f"Error: {error}")
 
     @commands.command(name="restart", help="Restart the quiz")
     async def restart_quiz(self, ctx):
@@ -193,11 +179,7 @@ class Background(commands.Cog):
     @commands.command(name="ask", help="Asks a question to a bot")
     async def ask_bot(self, ctx):
         await self.add_guild(ctx)
-        askingQuotes = ["E-Eh? You’re asking me? W-Well… I’ll try my best! Just don’t expect me to know everything, okay?!", 
-                        "I-I guess I am the reliable one… F-Fine, ask your question. Let’s figure it out together!",
-                        "W-What is it this time? If it’s another weird question, I swear I’ll—… Ugh, fine. Go on.",
-                        "Hmph… I was in the middle of reviewing, but f-fine. Let’s see what you’ve got!"]
-        await ctx.send(f"{askingQuotes[random.randint(0, len(askingQuotes)-1)]}\n\nMessage your question")
+        await ctx.send(f"{self.quotes["asking_quotes"][random.randint(0, len(self.quotes["asking_quotes"])-1)]}\n\nMessage your question")
         ask = await self.bot.wait_for("message")
         try:
             response = self.model.generate_content(self.data["AICOMMAND"] + str(ask.content))
@@ -208,16 +190,12 @@ class Background(commands.Cog):
     @commands.command(name="about", help="Display Developer Information")
     async def display_dev(self, ctx):
         await self.add_guild(ctx)
-        dev_quotes = ["O-Oh! U-Um… this is Kairu, my developer! D-Don’t get the wrong idea, they’re not perfect, but… they worked really hard to make me, s-so you better appreciate them!",
-                      "Tch… I guess I should introduce the one behind all this. This is Kairu, they’re the reason I’m even talking to you right now. Don’t praise them too much, though!",
-                      "If you’re wondering who made me this way… it’s Kairu! Hmph, don’t get the wrong idea, I’m not bragging about them or anything…", 
-                      "You should know Kairu’s the one who worked hard to make me your study partner. I-I’m just doing my part, okay?",
-                      "Don’t underestimate me just because I’m flustered sometimes! With Kairu’s help, I can handle anything you throw at me!"]
-
-        repo_quotes = ["You’ve entered my place. Hmph, don’t touch anything without asking me first!",
-                       "Listen carefully! This is Itsuki’s repository, so treat it with respect… o-or else!",
-                       "This repository belongs to Itsuki Nakano! Remember that before snooping around!",
-                       "Don’t get the wrong idea! This is my place, and I’m just letting you use it… got that?",
-                       "Heh… you’ve stepped into Itsuki Nakano’s repository! So behave yourself properly!"]
+        await ctx.send(self.quotes["dev_quotes"][random.randint(0, len(self.quotes["dev_quotes"])-1)] + "\nhttps://github.com/IKairuu\n\n" + self.quotes["repo_quotes"][random.randint(0, len(self.quotes["repo_quotes"])-1)] + "\nhttps://github.com/IKairuu/Itsuki-Bot")
+    
+    
         
-        await ctx.send(dev_quotes[random.randint(0, len(dev_quotes)-1)] + "\nhttps://github.com/IKairuu\n\n" + repo_quotes[random.randint(0, len(repo_quotes)-1)] + "\nhttps://github.com/IKairuu/Itsuki-Bot")
+
+
+
+
+
