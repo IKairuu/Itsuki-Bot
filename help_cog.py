@@ -1,22 +1,17 @@
 import discord
 from discord.ext import commands
-import random
+import random, json
 
 class HelpCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.itsukiHelpQuotes = [
-            "H-Huh? You need my help? W-Well… o-of course you do! I-I mean, I am reliable after all!",
-            "W-Wait, don’t just throw your problems at me all of a sudden! …B-But fine. I’ll help. Just this once!",
-            "Geez… You’re hopeless without me, aren’t you? …I-I’m not mad, okay?! I’ll help.",
-            "Okay, okay! L-Let’s not make a big deal out of it… I’ll help, but n-not because I want to!",
-            "If I don’t step in, you’ll probably just make it worse… s-so I guess I have to help!"
-        ]
+        with open("quotes.json", "r", encoding="utf-8") as json_file:
+            self.quotes = json.load(json_file) 
         
     @commands.command(name="help", help="Display commands")
     async def show_commands(self, ctx):
         help_message = f"""
-        {self.itsukiHelpQuotes[random.randint(0, len(self.itsukiHelpQuotes)-1)]}
+        {str(self.quotes["help_quotes"][random.randint(0, len(self.quotes["help_quotes"])-1)])}
         ```
         COMMANDS:
         &help - display commands
@@ -31,4 +26,3 @@ class HelpCog(commands.Cog):
         ```
         """
         await ctx.send(help_message)
-
