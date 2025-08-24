@@ -11,7 +11,6 @@ class Background(commands.Cog):
         super().__init__()
         self.bot = bot
         self.inVoiceChannel = False
-        self.invalidInputResponse = []
         self.voiceLinks = []
         self.questions = []
         self.answers = []
@@ -27,11 +26,6 @@ class Background(commands.Cog):
             contents = links.readlines()
             for voiceLink in contents:
                 self.voiceLinks.append(voiceLink.replace("\n",""))
-
-        with open("invalid.txt", "r", encoding="utf-8") as responses:
-            contents = responses.readlines()
-            for res in contents:
-                self.invalidInputResponse.append(res.replace("\n",""))
         
         with open("prompts.json", "r", encoding="utf-8") as json_file:
             self.data = json.load(json_file)
@@ -47,7 +41,7 @@ class Background(commands.Cog):
         incorrectAnswers =  0
         questionsDict = {self.questions[x]:self.answers[x] for x, y in enumerate(self.questions)}
         string = "\n".join(self.questions)
-        await ctx.send(f"```QUESTIONS:\n{string}```\n{self.quotes["ready_quotes"][random.randint(0, len(self.quotes["ready_quotes"])-1)]}")
+        await ctx.send(f"```QUESTIONS:\n{string}```\n{self.quotes['ready_quotes'][random.randint(0, len(self.quotes['ready_quotes'])-1)]}")
 
         question_list = list(questionsDict.items())
         random.shuffle(question_list)
@@ -179,7 +173,7 @@ class Background(commands.Cog):
     @commands.command(name="ask", help="Asks a question to a bot")
     async def ask_bot(self, ctx):
         await self.add_guild(ctx)
-        await ctx.send(f"{self.quotes["asking_quotes"][random.randint(0, len(self.quotes["asking_quotes"])-1)]}\n\nMessage your question")
+        await ctx.send(f"{self.quotes['asking_quotes'][random.randint(0, len(self.quotes['asking_quotes'])-1)]}\n\nMessage your question")
         ask = await self.bot.wait_for("message")
         try:
             response = self.model.generate_content(self.data["AICOMMAND"] + str(ask.content))
@@ -191,11 +185,3 @@ class Background(commands.Cog):
     async def display_dev(self, ctx):
         await self.add_guild(ctx)
         await ctx.send(self.quotes["dev_quotes"][random.randint(0, len(self.quotes["dev_quotes"])-1)] + "\nhttps://github.com/IKairuu\n\n" + self.quotes["repo_quotes"][random.randint(0, len(self.quotes["repo_quotes"])-1)] + "\nhttps://github.com/IKairuu/Itsuki-Bot")
-    
-    
-        
-
-
-
-
-
