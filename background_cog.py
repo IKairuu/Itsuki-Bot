@@ -3,8 +3,9 @@ from discord.ext import commands
 import random
 import os
 import google.generativeai as genai
+from googletrans import Translator
 from elevenlabs.client import ElevenLabs
-import requests, tempfile, json
+import requests, tempfile, json, asyncio
 
 class Background(commands.Cog):
     def __init__(self, bot):
@@ -81,13 +82,18 @@ class Background(commands.Cog):
                 await ctx.send(f"You need to be in a voice channel to use this command.")
         except Exception as error:
             await ctx.send(str(error))
-
-    async def speech_generate(self, text:str, id:str, ctx):
+            
+    async def translate_text(self, text:str):
+        async with Translator() as translator:
+            reponse = await translator.translate(text=text, dest="ja")
+            string = reponse.pronunciation
+            return string
+            
+    async def speech_generate(self, text:str, id:str, ctx):  
         try:
-            response = self.model.generate_content(self.data["JDUB"] + text)
             url = f"https://api.elevenlabs.io/v1/text-to-speech/{id}/stream"
             header = {"xi-api-key" : os.getenv("VOICEAPI"), "Content-Type": "application/json"}
-            data = {"text": response.text, "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}   
+            data = {"text": await self.translate_text(text), "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}   
         except ValueError or Exception as error:
             await ctx.send("Im tired, let me rest for now, talk to me later")
 
