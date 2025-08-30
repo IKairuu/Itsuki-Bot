@@ -18,6 +18,7 @@ class HelpCog(commands.Cog):
         &talk - the bot will state a quote in the voice channel
         &leave - the bot will disconnect to the voice channel
         &quiz <# of questions> - the bot will input the questions with answers
+        &start - starts the quiz
         &clear - Clears the list of questions
         &restart - Restart the quiz
         &ask - asks questions to a bot
