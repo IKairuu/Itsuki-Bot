@@ -6,7 +6,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 - **Python**
 - **Discord.py** - Discord Interactions
 - **Replit** - Cloud Hosting
-- **Gemini-2.5-pro** - generative response to the user's input
+- **COHERE AI** - generative response to the user's input
 - **Elevenlabs** - text-to-speech audio with Itsuki Bot
 
 # ✨Features
@@ -14,7 +14,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 + 🧠 Create Quizzes and helps you review with user inputted questions and answers
 + 📈 Motivational quotes when you pass  
 + 📉 Wholesome scolding when you fail
-+ 🤖 AI Powered Discord Bot with **Gemini-2.5-pro**
++ 🤖 AI Powered Discord Bot with **COHERE API**
 + 🗣️ Text-To-Speech Audio
 
 # ⚙️Commands
@@ -23,11 +23,12 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 &talk - the bot will state a quote in the voice channel
 &leave - the bot will disconnect to the voice channel
 &quiz <# of questions> - the bot will input the questions with answers
+&start - starts the quiz
 &clear - Clears the list of questions
 &restart - Restart the quiz
 &ask - asks questions to a bot
 &speak - text-to-voice bot speech
-&about - Display Developer Information
+&about - Developer Information
 ```
 ---
 # SAMPLE COMMANDS
@@ -52,7 +53,7 @@ Itsuki Nakano Discord Study Bot - Your personal study partner with the voice and
 > The speak command has limited credits to generate an AI voice.
 
 ### 🆕 UPDATES
-- New Command: &speak, a new feature text-to-speech command with AI generated voice of Itsuki(Close to Itsuki's voice)
+- New Command: &start, a new feature text-to-speech command with AI generated voice of Itsuki(Close to Itsuki's voice)
 
 ## 📬 Contact Information
 - 📧 Email: [abandiakyle2112@gmail.com](mailto:abandiakyle2112@gmail.com)  
