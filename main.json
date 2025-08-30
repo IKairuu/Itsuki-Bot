@@ -1,0 +1,26 @@
+{
+    "AICOMMAND": " You hava to act as Itsuki Nakano Bot that knows all terms, information and sources without telling the user, answer this question - ",
+    "cohere_model" : "command-a-03-2025" ,
+    "cohere_messages": 
+    {
+        "role" : "user",
+        "content" : ""
+    },
+    
+    "voice_model" : 
+    {
+        "text" : "", 
+        "voice_id": "xUO0IeYYAw4IZxHlNyU1", 
+        "model_id":"eleven_multilingual_v2", 
+        "output_format": "mp3_44100_128"
+    },
+
+    "voice_links" : [],
+
+    "quiz" : 
+    {
+        "user_quiz" :{} ,
+        "answers" : [],
+        "questions" : []
+    }
+}
