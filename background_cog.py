@@ -7,27 +7,29 @@ from googletrans import Translator
 from elevenlabs.client import ElevenLabs
 import tempfile, json
 
+from httpx import HTTPError
+
 class Background(commands.Cog):
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
         self.inVoiceChannel = False
-        
+
         self.cohere = cohere.AsyncClientV2(os.getenv("COHERE"))
         self.elevenLabs = ElevenLabs(api_key=os.getenv("VOICEAPISEC"))
-        
+
         with open("main.json", "r", encoding="utf-8") as json_file:
             self.data = json.load(json_file)
-            
+
         with open("quotes.json", "r", encoding="utf-8") as json_file:
             self.quotes = json.load(json_file)
-        
+
         with open("links.txt", "r", encoding="utf-8") as links:
             contents = links.readlines()
             for voiceLink in contents:
                 self.data["voice_links"].append(voiceLink.replace("\n",""))
-    
-    
+
+
     # ------------------------------------ QUIZ ------------------------------------------------------       
     @commands.command(name="start", help="start the quiz")
     async def start_quiz(self, ctx):
@@ -35,13 +37,13 @@ class Background(commands.Cog):
             await self.answer_quiz(ctx)
         else:
             await ctx.send("There is no quz list ")
-    
+
     def find_author(self, id:str):
         for users in self.data["quiz"]["user_quiz"]:
             if id == users:
                 return True
         return False
-        
+
     async def answer_quiz(self, ctx):
         def check_author(m):
             return m.author == ctx.author and m.channel == ctx.channel
@@ -66,9 +68,9 @@ class Background(commands.Cog):
                     incorrectAnswers += 1
                     await ctx.send(self.quotes["incorrect_answer_quotes"][random.randint(0, len(self.quotes["incorrect_answer_quotes"])-1)])
         if incorrectAnswers > passing: 
-            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\nTotal Items: {str(len(self.data["quiz"]["user_quiz"][ctx.message.author.id][0]))}\n\n" + self.quotes["failed_quotes"][random.randint(0, len(self.quotes["failed_quotes"])-1)])
+            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\nTotal Items: {str(len(self.data['quiz']['user_quiz'][ctx.message.author.id][0]))}\n\n" + self.quotes['failed_quotes'][random.randint(0, len(self.quotes["failed_quotes"])-1)])
         else:
-            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\nTotal Items: {str(len(self.data["quiz"]["user_quiz"][ctx.message.author.id][0]))}\n\n" + self.quotes["passed_quotes"][random.randint(0, len(self.quotes["passed_quotes"])-1)])
+            await ctx.send(f"Incorrect Answers: {incorrectAnswers}\nTotal Items: {str(len(self.data['quiz']['user_quiz'][ctx.message.author.id][0]))}\n\n" + self.quotes['passed_quotes'][random.randint(0, len(self.quotes['passed_quotes'])-1)])
 
     @commands.command(name="quiz", help="the bot will input the questions with answers")
     async def create_quiz(self, ctx, lines):
@@ -81,7 +83,7 @@ class Background(commands.Cog):
                 await ctx.send("I can only accept 15 questions")
             else:
                 author_id = ctx.message.author.id
-                
+
                 for nums in range(1, numQuestion+1, 1):
                     await ctx.send(f"Input Question #{nums}")
                     ask = await self.bot.wait_for("message", check = check_author)
@@ -113,8 +115,8 @@ class Background(commands.Cog):
         else:
             self.data["quiz"]["user_quiz"].pop(ctx.message.author.id)
             await ctx.send("Inputted Questions Cleared") 
-            
-            
+
+
     # ------------------------------------ TALK FUNCTION ------------------------------------------------------       
     @commands.command(name="talk", help="join in voice channel")
     async def join_audio(self, ctx):
@@ -125,7 +127,7 @@ class Background(commands.Cog):
                 if not self.inVoiceChannel:
                     await channel.connect()
                     self.inVoiceChannel = True
-                    
+
                 try:
                     ctx.voice_client.play(audio_source)
                 except Exception as error:
@@ -148,15 +150,17 @@ class Background(commands.Cog):
             reponse = await translator.translate(text=text, dest="ja")
             string = reponse.pronunciation
             return string
-            
+
     async def speech_generate(self, text:str, ctx):
         self.data["voice_model"]["text"] = await self.translate_text(text)
         voice = self.elevenLabs.text_to_speech.convert(text=self.data["voice_model"]["text"], voice_id=self.data["voice_model"]["voice_id"], model_id=self.data["voice_model"]["model_id"], output_format=self.data["voice_model"]["output_format"])
         self.data["voice_model"]["text"] = "" 
-        temp = tempfile.TemporaryFile(mode="wb", delete=False, suffix=".mp3")
+        temp = tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".mp3")
         for chunks in voice:
             temp.write(chunks)
         temp.close()
+        print(temp.name)
+        print(type(temp.name))
         return temp.name
 
     @commands.command(name="speak", help="Text-to-speech")
@@ -182,6 +186,7 @@ class Background(commands.Cog):
         except Exception or AttributeError as error:
             if AttributeError:
                 await ctx.send(f"You need to be in a voice channel to use this command.")
+                print(error)
             else:
                 await ctx.send("Im tired right now, talk to me again later")
                 print(error)
@@ -196,12 +201,15 @@ class Background(commands.Cog):
         ask = await self.bot.wait_for("message", check = check_author, timeout = 60.0)
         try:
             response = await self.cohere.chat(model=self.data["cohere_model"], messages=[cohere.UserChatMessageV2(content=self.data["AICOMMAND"] + ask.content)])
-            await ctx.send(response.message.content[0].text)
+            if len(response.message.content[0].text) >= 2000:
+                await ctx.send("Ask again,its too much for me")
+            else:
+                await ctx.send(response.message.content[0].text)
         except ValueError or Exception as error:
             await ctx.send("Im tired, let me rest for now, talk to me later")
             print(error)
-            
-    
+
+
     # ------------------------------------ INFORMATION ------------------------------------------------------       
     @commands.command(name="about", help="Display Developer Information")
     async def display_dev(self, ctx):
