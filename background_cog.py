@@ -7,8 +7,6 @@ from googletrans import Translator
 from elevenlabs.client import ElevenLabs
 import tempfile, json
 
-from httpx import HTTPError
-
 class Background(commands.Cog):
     def __init__(self, bot):
         super().__init__()
@@ -214,3 +212,4 @@ class Background(commands.Cog):
     @commands.command(name="about", help="Display Developer Information")
     async def display_dev(self, ctx):
         await ctx.send(self.quotes["dev_quotes"][random.randint(0, len(self.quotes["dev_quotes"])-1)] + "\nhttps://github.com/IKairuu\n\n" + self.quotes["repo_quotes"][random.randint(0, len(self.quotes["repo_quotes"])-1)] + "\nhttps://github.com/IKairuu/Itsuki-Bot")
+
